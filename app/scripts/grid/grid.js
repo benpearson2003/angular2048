@@ -1,15 +1,14 @@
+/*jshint bitwise: false */
 'use strict';
 
 angular.module('Grid', [])
 .factory('GenerateUniqueId', function() {
   var generateUid = function() {
-    // http://www.ietf.org/rfc/rfc4122.txt
-    // http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
     var d = new Date().getTime();
     var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
       var r = (d + Math.random()*16)%16 | 0;
       d = Math.floor(d/16);
-      return (c === 'x' ? r : (r&0x7|0x8)).toString(16);
+      return (c==='x' ? r : (r&0x7|0x8)).toString(16);
     });
     return uuid;
   };
@@ -25,6 +24,7 @@ angular.module('Grid', [])
 
     this.id = GenerateUniqueId.next();
     this.merged = null;
+    this.appeared = null;
   };
 
   Tile.prototype.savePosition = function() {
@@ -64,7 +64,7 @@ angular.module('Grid', [])
 })
 .provider('GridService', function() {
   this.size = 4; // Default size
-  this.startingTileNumber = 2; // default starting tiles
+  this.startingTileNumber = 2; // no more than size*size
 
   this.setSize = function(sz) {
     this.size = sz ? sz : 0;
@@ -273,8 +273,9 @@ angular.module('Grid', [])
     };
 
     this.randomlyInsertNewTile = function() {
+      var value = Math.random() < 0.9 ? 2 : 4;
       var cell = this.randomAvailableCell(),
-          tile = this.newTile(cell, 2);
+          tile = this.newTile(cell, value);
       this.insertTile(tile);
     };
 
